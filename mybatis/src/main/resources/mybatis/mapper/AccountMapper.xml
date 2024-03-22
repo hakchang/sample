@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mybatis.infra.outbound.db.mybatis.mapper.AccountMapper">
+
+    <resultMap id="BaseResultMap" type="AccountEntity">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="createdDatetime" column="created_datetime" jdbcType="TIMESTAMP"/>
+        <result property="lastModifiedDatetime" column="last_modified_datetime" jdbcType="TIMESTAMP"/>
+        <association property="user" column="id" fetchType="lazy"
+                     select="com.example.mybatis.infra.outbound.db.mybatis.mapper.UserMapper.selectByAccountId"/>
+        <collection property="terms" column="id" fetchType="lazy"
+                    select="com.example.mybatis.infra.outbound.db.mybatis.mapper.AccountTermMapper.selectAllByAccountId"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO account
+            (username, password, nickname, created_datetime, last_modified_datetime)
+        VALUES (#{username}, #{password}, #{nickname}, #{createdDatetime}, #{lastModifiedDatetime})
+    </insert>
+    <select id="countByUsername" resultType="java.lang.Integer">
+        SELECT count(id)
+        FROM account
+        WHERE username = #{username}
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT id, username, password, nickname, created_datetime, last_modified_datetime
+        FROM account
+        WHERE id = #{id}
+    </select>
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT id, username, password, nickname, created_datetime, last_modified_datetime
+        FROM account
+        WHERE username = #{username}
+    </select>
+    <update id="update">
+        UPDATE account
+        SET last_modified_datetime = #{lastModifiedDatetime}
+        <if test="nickname != null">
+            , nickname = #{nickname}
+        </if>
+        <if test="thumbnail != null">
+            , thumbnail = #{thumbnail}
+        </if>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE FROM account
+        WHERE id = #{id}
+    </delete>
+
+    <!-- Nested Select -->
+    <resultMap id="NestedSelectResultMap" type="AccountEntity">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="createdDatetime" column="created_datetime" jdbcType="TIMESTAMP"/>
+        <result property="lastModifiedDatetime" column="last_modified_datetime" jdbcType="TIMESTAMP"/>
+        <association property="user" column="id" fetchType="lazy"
+                     select="com.example.mybatis.infra.outbound.db.mybatis.mapper.UserMapper.selectByAccountId"/>
+        <collection property="terms" column="id" fetchType="lazy"
+                    select="com.example.mybatis.infra.outbound.db.mybatis.mapper.AccountTermMapper.selectAllByAccountId"/>
+    </resultMap>
+    <select id="selectByUsernameNestedSelect" resultMap="NestedSelectResultMap">
+        SELECT a.id,
+               a.username,
+               a.password,
+               a.nickname,
+               a.created_datetime,
+               a.last_modified_datetime
+        FROM account a
+        WHERE a.username = #{username}
+    </select>
+    <select id="selectAllNestedSelect" resultMap="NestedSelectResultMap">
+        SELECT a.id,
+               a.username,
+               a.password,
+               a.nickname,
+               a.created_datetime,
+               a.last_modified_datetime
+        FROM account a
+    </select>
+
+    <!-- Nested Result -->
+    <resultMap id="NestedResultResultMap" type="AccountEntity">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="createdDatetime" column="created_datetime" jdbcType="TIMESTAMP"/>
+        <result property="lastModifiedDatetime" column="last_modified_datetime" jdbcType="TIMESTAMP"/>
+        <association property="user" columnPrefix="user_" javaType="UserEntity">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="email" column="email"/>
+            <result property="phone" column="phone"/>
+        </association>
+        <collection property="terms" resultMap="AccountTermResultMap"/>
+    </resultMap>
+    <resultMap id="AccountTermResultMap" type="AccountTermEntity">
+        <id property="termId" column="term_id"/>
+        <result property="agree" column="agree"/>
+        <association property="term" columnPrefix="term_" javaType="TermEntity">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+            <result property="description" column="description"/>
+        </association>
+    </resultMap>
+    <select id="selectByUsernameNestedResult" resultMap="NestedResultResultMap">
+        SELECT a.id,
+               a.username,
+               a.password,
+               a.nickname,
+               a.created_datetime,
+               a.last_modified_datetime,
+               u.id          AS user_id,
+               u.name        AS user_name,
+               u.email       AS user_email,
+               u.phone       AS user_phone,
+               "at".agree      AS agree,
+               t.id          as term_id,
+               t.title       AS term_title,
+               t.description AS term_description
+        FROM account a
+                 LEFT JOIN "user" u ON a.id = u.account_id
+                 LEFT JOIN account_term "at" ON a.id = "at".account_id
+                 left join term t ON "at".term_id = t.id
+        WHERE a.username = #{username}
+    </select>
+    <select id="selectAllNestedResult" resultMap="NestedResultResultMap">
+        SELECT a.id,
+               a.username,
+               a.password,
+               a.nickname,
+               a.created_datetime,
+               a.last_modified_datetime,
+               u.id          AS user_id,
+               u.name        AS user_name,
+               u.email       AS user_email,
+               u.phone       AS user_phone,
+               "at".agree      AS agree,
+               t.id          as term_id,
+               t.title       AS term_title,
+               t.description AS term_description
+        FROM account a
+                 LEFT JOIN "user" u ON a.id = u.account_id
+                 LEFT JOIN account_term "at" ON a.id = "at".account_id
+                 left join term t ON "at".term_id = t.id
+    </select>
+
+</mapper>

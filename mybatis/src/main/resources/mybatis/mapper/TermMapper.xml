@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mybatis.infra.outbound.db.mybatis.mapper.TermMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.mybatis.infra.outbound.db.mybatis.entity.TermEntity">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="createdDatetime" column="created_datetime" jdbcType="TIMESTAMP"/>
+            <result property="lastModifiedDatetime" column="last_modified_datetime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO term
+            (title, description, created_datetime, last_modified_datetime)
+        VALUES (#{title}, #{description}, #{createdDatetime}, #{lastModifiedDatetime})
+    </insert>
+    <delete id="deleteById"></delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT id, title, description, created_datetime, last_modified_datetime
+        FROM term
+        WHERE id = #{id}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT id, title, description, created_datetime, last_modified_datetime
+        FROM term
+    </select>
+    <update id="update">
+        UPDATE term
+        SET last_modified_datetime = #{lastModifiedDatetime}
+        <if test="title != null">
+            , title = #{title}
+        </if>
+        <if test="description != null">
+            , description = #{description}
+        </if>
+        WHERE id = #{id}
+    </update>
+    
+</mapper>

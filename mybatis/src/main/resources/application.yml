@@ -1,0 +1,28 @@
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/**/*.xml
+  configuration:
+    lazy-loading-enabled: true
+    lazy-load-trigger-methods: ""
+  type-aliases-package: com.example.mybatis.infra.outbound.db.mybatis.entity
+
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/**/*.xml
+  configuration:
+    lazy-loading-enabled: true
+    lazy-load-trigger-methods: ""
+  type-aliases-package: com.example.mybatis.infra.outbound.db.mybatis.entity
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:25432/postgres
+    username: postgres
+    password: 1234
+
+logging:
+  level:
+    com.example.mybatis: debug
+
+# custom configuration
+sample:
+  media:
+    base-path: .local/thumbnail
