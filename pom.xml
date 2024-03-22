@@ -9,10 +9,10 @@
     <name>sample-project</name>
     <packaging>pom</packaging>
 
-<!--    <modules>-->
-<!--        <module>media</module>-->
-<!--        <module>sample-springboot-autoconfigure</module>-->
-<!--        <module>sample-springboot-starter</module>-->
-<!--    </modules>-->
+    <modules>
+        <module>media</module>
+        <module>sample-springboot-autoconfigure</module>
+        <module>sample-springboot-starter</module>
+    </modules>
 
 </project>
